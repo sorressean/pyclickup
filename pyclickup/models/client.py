@@ -37,6 +37,7 @@ class ClickUp:
             raise Exception("no token specified!")
         self.token = token
         self.api_url = api_url
+        self.apiv2_url = api_url.replace('v1', 'v2')
         self.version = __version__
         self.cache = cache
         self.debug = debug
@@ -95,18 +96,41 @@ class ClickUp:
             raise RateLimited()
         return request
 
+    def _req2(self, path: str, method: str = "get", **kwargs: Any) -> Response:
+        """requests wrapper"""
+        full_path = urllib.parse.urljoin(self.apiv2_url, path)
+        self._log(f"[{method.upper()}]: {full_path}")
+        request = requests.request(method, full_path, headers=self.headers, **kwargs)
+        if request.status_code == 429:
+            raise RateLimited()
+        return request
+
     def get(
         self, path: str, raw: bool = False, **kwargs: Any
     ) -> Union[list, dict, Response]:
         """makes a get request to the API"""
         request = self._req(path, **kwargs)
         return request if raw else request.json()
-
+    
+    def get2(
+            self, path: str, raw: bool = False, **kwargs: Any
+        ) -> Union[list, dict, Response]:
+            """makes a get request to the API"""
+            request = self._req2(path, **kwargs)
+            return request if raw else request.json()
+    
     def post(
         self, path: str, raw: bool = False, **kwargs: Any
     ) -> Union[list, dict, Response]:
         """makes a post request to the API"""
         request = self._req(path, method="post", **kwargs)
+        return request if raw else request.json()
+    
+    def post2(
+    self, path: str, raw: bool = False, **kwargs: Any
+    ) -> Union[list, dict, Response]:
+        """makes a post request to the API"""
+        request = self._req2(path, method="post", **kwargs)
         return request if raw else request.json()
 
     def put(
@@ -114,6 +138,12 @@ class ClickUp:
     ) -> Union[list, dict, Response]:
         """makes a put request to the API"""
         request = self._req(path, method="put", **kwargs)
+        return request if raw else request.json()
+    def put2(
+    self, path: str, raw: bool = False, **kwargs: Any
+    ) -> Union[list, dict, Response]:
+        """makes a put request to the API"""
+        request = self._req2(path, method="put", **kwargs)
         return request if raw else request.json()
 
     def _get_tasks(
@@ -154,7 +184,7 @@ class ClickUp:
         ]
         opts = "&".join(options)
         path = f"team/{team_id}/task?{opts}"
-        task_list = self.get(path)
+        task_list = self.get2(path)
         if not isinstance(task_list, dict):
             return []
         return [Task(x, client=self) for x in task_list["tasks"]]

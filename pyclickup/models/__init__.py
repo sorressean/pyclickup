@@ -1,6 +1,3 @@
-"""
-models for each object in the clickup api
-"""
 import json
 from datetime import datetime
 from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
@@ -98,6 +95,7 @@ class List(BaseModel):
         status: str = "Open",  # needs to match your given statuses for the list
         priority: int = 0,  # default to no priority (0). check Task class for enum
         due_date: Union[int, datetime] = None,  # integer posix time, or python datetime
+        custom_fields=[],
     ) -> Union[list, dict, Response]:
         """
         creates a task within this list, returning the id of the task.
@@ -126,11 +124,14 @@ class List(BaseModel):
 
         if priority > 0:
             task_data["priority"] = priority
-
-        new_task_call = self._client.post(f"list/{self.id}/task", data=task_data)
+        if custom_fields:
+            task_data["custom_fields"] = custom_fields
+        new_task_call = self._client.post2(f"list/{self.id}/task", data=task_data)
         return new_task_call["id"]
 
-
+    def get_custom_fields(self):
+        return self._client.get2(f"list/{self.id}/field")
+    
 class Project(BaseModel):
     """project model"""
 
@@ -307,7 +308,10 @@ class Task(BaseModel):
     def __repr__(self):
         """repr"""
         return f"<{LIBRARY}.Task[{self.id}] '{self.name}'>"
-
+    
+    def set_custom_field_value(self, field_id:str, value:str):
+        return self._client.post2(f"task/{self.id}/field/{field_id}", data={"value": value})
+    
     def update(
         self,
         name: str = None,  # string
