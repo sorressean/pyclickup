@@ -1,6 +1,7 @@
 """
 base client model to create and use http endpoints
 """
+import json
 import requests
 import urllib.parse
 from datetime import datetime
@@ -10,7 +11,6 @@ from pyclickup.models import User, Task, Team
 from pyclickup.models.error import RateLimited
 from pyclickup.utils.text import datetime_to_ts, filter_locals
 from typing import Any, Dict, List, Optional, Union  # noqa
-
 
 class ClickUp:
     """client http wrapper"""
@@ -97,14 +97,40 @@ class ClickUp:
         return request
 
     def _req2(self, path: str, method: str = "get", **kwargs: Any) -> Response:
-        """requests wrapper"""
+        """requests wrapper to ensure JSON payload is sent when necessary."""
+        
+        # Ensure the full URL is formed correctly
         full_path = urllib.parse.urljoin(self.apiv2_url, path)
+        
+        # Log the full request URL and method
         self._log(f"[{method.upper()}]: {full_path}")
-        request = requests.request(method, full_path, headers=self.headers, **kwargs)
+        
+        # Set headers for JSON content type by default
+        headers = self.headers.copy()
+        
+        # Check if we need to send JSON data
+        if 'data' in kwargs:
+            headers["Content-Type"] = "application/json"
+            kwargs['data'] = json.dumps(kwargs['data'])  # Serialize the data to JSON
+            
+        elif 'json' in kwargs:
+            headers["Content-Type"] = "application/json"
+            kwargs['data'] = json.dumps(kwargs['json'])  # Serialize JSON to body
+            del kwargs['json']  # Remove the `json` argument as it's now in `data`
+        
+        # Add the headers to kwargs
+        kwargs["headers"] = headers
+        
+        # Perform the request with the correct method and headers
+        request = requests.request(method, full_path, **kwargs)
+        
+        # Handle rate-limiting scenario
         if request.status_code == 429:
             raise RateLimited()
+        
+        # Return the response (json if it's JSON, otherwise the raw response)
         return request
-
+    
     def get(
         self, path: str, raw: bool = False, **kwargs: Any
     ) -> Union[list, dict, Response]:

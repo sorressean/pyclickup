@@ -125,7 +125,9 @@ class List(BaseModel):
         if priority > 0:
             task_data["priority"] = priority
         if custom_fields:
-            task_data["custom_fields"] = custom_fields
+            task_data["custom_fields"] = [
+                {"id": field["id"], "value": field["value"]} for field in custom_fields
+                        ]
         new_task_call = self._client.post2(f"list/{self.id}/task", data=task_data)
         return new_task_call["id"]
 
