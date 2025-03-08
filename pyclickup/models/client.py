@@ -151,7 +151,7 @@ class ClickUp:
         """makes a post request to the API"""
         request = self._req(path, method="post", **kwargs)
         return request if raw else request.json()
-    def DELETE2(
+    def delete2(
     self, path: str, raw: bool = False, **kwargs: Any
     ) -> Union[list, dict, Response]:
         """makes a post request to the API"""
