@@ -311,6 +311,9 @@ class Task(BaseModel):
         """repr"""
         return f"<{LIBRARY}.Task[{self.id}] '{self.name}'>"
     
+    def delete(self):
+        return self._client.delete2(f"task/{self.id}")
+    
     def set_custom_field_value(self, field_id:str, value:str):
         return self._client.post2(f"task/{self.id}/field/{field_id}", data={"value": value})
     
