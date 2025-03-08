@@ -152,12 +152,11 @@ class ClickUp:
         request = self._req(path, method="post", **kwargs)
         return request if raw else request.json()
     def delete2(
-    self, path: str, raw: bool = False, **kwargs: Any
+    self, path: str, **kwargs: Any
     ) -> Union[list, dict, Response]:
         """makes a post request to the API"""
-        request = self._req2(path, method="DELETE", **kwargs)
-        return request if raw else request.json()
-
+        return self._req2(path, method="DELETE", **kwargs)
+        
     def post2(
     self, path: str, raw: bool = False, **kwargs: Any
     ) -> Union[list, dict, Response]:
