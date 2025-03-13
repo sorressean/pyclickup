@@ -87,6 +87,11 @@ class List(BaseModel):
             self.project.space.team.id, list_ids=[self.id], **kwargs  # type: ignore
         )
 
+    def get_task    (self, task_id: str) -> "Task":
+        if not self._client:
+            raise MissingClient()
+        return self._client._get_task(task_id)
+
     def create_task(
         self,
         name: str,  # string

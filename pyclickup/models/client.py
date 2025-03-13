@@ -233,6 +233,13 @@ class ClickUp:
             task_page = self._get_tasks(team_id, page=page_count, **kwargs)
         return tasks
 
+    def _get_task(self, task_id: str) -> Task:
+        """fetches a single task"""
+        task_data = self.get2(f"task/{task_id}")
+        if not isinstance(task_data, dict):
+            raise Exception("no task found")
+        return Task(task_data, client=self)
+    
     def _create_task(
         self,
         list_id: str,
