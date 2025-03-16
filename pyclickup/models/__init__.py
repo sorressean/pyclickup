@@ -96,6 +96,7 @@ class List(BaseModel):
         self,
         name: str,  # string
         content: str = "",  # optional, but nice
+        markdown_content = "", #markdown content
         assignees: ListType[Union[int, User]] = None,  # list of User objects, or ints
         status: str = "Open",  # needs to match your given statuses for the list
         priority: int = 0,  # default to no priority (0). check Task class for enum
@@ -113,9 +114,12 @@ class List(BaseModel):
             raise MissingClient()
         task_data = {
             "name": name,
-            "content": content,
-            "status": status,
+                        "status": status,
         }  # type: Dict[str, Any]
+        if content:
+            task_data["content"] = content
+        if markdown_content:
+            task_data["markdown_content"] = markdown_content
 
         if assignees:
             task_data["assignees"] = [
