@@ -138,6 +138,8 @@ class List(BaseModel):
                 {"id": field["id"], "value": field["value"]} for field in custom_fields
                         ]
         new_task_call = self._client.post2(f"list/{self.id}/task", data=task_data)
+        if not "id" in new_task_call:
+            raise Exception(new_task_call)
         return new_task_call["id"]
 
     def get_custom_fields(self):

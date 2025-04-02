@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 
 __library__ = "pyclickup"
-__version__ = "0.18"
+__version__ = "0.19"
 
 __user__ = "https://github.com/jpetrucciani"
 
