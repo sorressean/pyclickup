@@ -1,7 +1,7 @@
 """
 base client model to create and use http endpoints
 """
-import json
+import ujson as json
 import requests
 import urllib.parse
 from datetime import datetime

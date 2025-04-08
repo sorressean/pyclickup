@@ -6,9 +6,9 @@ from setuptools import setup, find_packages
 
 
 __library__ = "pyclickup"
-__version__ = "0.19"
+__version__ = "0.21"
 
-__user__ = "https://github.com/jpetrucciani"
+__user__ = "https://github.com/sorressean"
 
 
 with open("README.md") as readme:

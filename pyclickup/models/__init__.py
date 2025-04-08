@@ -1,4 +1,4 @@
-import json
+import ujson as json
 from datetime import datetime
 from pyclickup.globals import DEFAULT_STATUSES, LIBRARY
 from pyclickup.models.error import MissingClient
@@ -143,7 +143,7 @@ class List(BaseModel):
         return new_task_call["id"]
 
     def get_custom_fields(self):
-        return self._client.get2(f"list/{self.id}/field")
+        return self._client.get2(f"list/{self.id}/field")['fields']
     
 class Project(BaseModel):
     """project model"""
