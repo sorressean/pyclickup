@@ -52,7 +52,7 @@ class ClickUp:
         """forms the headers required for the API calls"""
         return {
             "Accept": "application/json",
-            "AcceptEncoding": "gzip, deflate",
+            "AcceptEncoding": "gzip, deflate, br",
             "Authorization": self.token,
             "User-Agent": self.user_agent,
         }

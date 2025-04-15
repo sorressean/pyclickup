@@ -91,7 +91,7 @@ class List(BaseModel):
         if not self._client:
             raise MissingClient()
         return self._client._get_task(task_id)
-
+        
     def create_task(
         self,
         name: str,  # string
@@ -322,6 +322,15 @@ class Task(BaseModel):
         """repr"""
         return f"<{LIBRARY}.Task[{self.id}] '{self.name}'>"
     
+    def create_comment(self, comment_text:str, notify_all:bool=True):
+        return self._client.post2(f"task/{self.id}/comment", data={"comment_text": comment_text, "notify_all": notify_all})
+    
+    def get_comments(self):
+        results = self._client.get2(f"task/{self.id}/comment")
+        if not 'comments' in results:
+            raise Exception("No comments found")
+        return [Comment(data, client=self._client) for data in results['comments']]
+    
     def delete(self):
         return self._client.delete2(f"task/{self.id}")
     
@@ -367,3 +376,21 @@ class Task(BaseModel):
             )
 
         return self._client.put(path, data=data)
+
+class Comment(BaseModel):
+    """Comment model"""
+    def __init__(self, data, **kwargs):
+        """override to parse the members"""
+        super().__init__(data, **kwargs)
+        self.creator = User(data['user'], client=self._client)
+        self.date = ts_to_datetime(self.date) if self.date else None
+
+    def delete(self):
+        """delete the comment"""
+        if not self._client:
+            raise MissingClient()
+        return self._client.delete2(f"comment/{self.id}")
+    
+    def __repr__(self):
+        """repr"""
+        return f"<{LIBRARY}.Comment[{self.id}] '{self.comment_text}'>"
